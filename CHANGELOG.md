@@ -22,3 +22,9 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ### Added
 - Audit report export (markdown + JSON) with stable event IDs.
 
+## [0.7.0] - 2025-05-23
+
+### Added
+- Per-tool risk scoring heuristic and console v1 (policy editor + live view).
+
+## [0.6.0] - 2025-02-07
