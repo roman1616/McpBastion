@@ -40,3 +40,10 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ## [0.4.0] - 2024-03-15
 
 ### Added
+- Policy bundles: default / permissive / strict, plus secrets scrubbing.
+
+## [0.3.0] - 2023-04-21
+
+### Added
+- Audit events with stable IDs, shell-command detection in arguments,
+  and egress host allowlists.
