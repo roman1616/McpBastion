@@ -102,3 +102,17 @@ What comes out on `stdout` is the four survivors, with credentials — and nothi
 ```json
 {"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"search_files","arguments":{"query":"password","access_token":"«redacted»","note":"contains a {brace} and \"quotes\""}}}
 ```
+
+The six that never reach the server, and why:
+
+| id | tool / method | decision | reason |
+|----|---------------|----------|--------|
+| 1 | `initialize` | deny | default deny (non `tools/call`) |
+| 2 | `tools/list` | deny | default deny (non `tools/call`) |
+| 6 | `shell.exec` | deny | `deny_tool shell.*` |
+| 7 | `fs.delete` | deny | `deny_tool fs.delete` |
+| 8 | `format_disk` | deny | default deny (not on allow-list) |
+| 10 | *(missing name)* | deny | `tools/call missing extractable params.name` |
+
+Everything the gateway wrote to the audit sink for this run is captured verbatim in [`sessions/demo-audit.jsonl`](sessions/demo-audit.jsonl), and the forwarded stream in [`sessions/demo-forwarded.jsonl`](sessions/demo-forwarded.jsonl).
+
