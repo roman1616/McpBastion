@@ -47,3 +47,17 @@ Every non-empty input line runs the same gauntlet, in this order. The first gate
 5. **Deny list.** If the name matches any `deny_tool` glob → **deny**. Deny always beats allow.
 6. **Allow list.** Else if it matches any `allow_tool` glob → continue. Else apply `default`.
 7. **Rate.** A would-be-forwarded message arriving while the rolling window is full is **dropped**. Only forwarded messages count against the window.
+8. **Redact & forward.** Matching argument values are spliced with the mask, and the message — every other byte intact — is written to `stdout`.
+
+Whatever the outcome, one audit event is emitted describing it.
+
+## Standing up the gateway
+
+Prerequisites: a Rust toolchain (`cargo`) and Node.js ≥ 18.
+
+```sh
+make build          # cargo build --release  +  npm install && npm run build
+make demo           # runs the whole gauntlet end-to-end and prints the report
+```
+
+`make demo` is the fastest way to see the checkpoint work; it is the exact command below, wired to the shipped sample session so the whole thing is self-contained and deterministic:
