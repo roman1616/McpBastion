@@ -144,3 +144,17 @@ redaction_mask = "«redacted»"
 ```
 
 Routing rules that matter:
+
+- **Deny wins.** If a tool matches both an `allow_tool` and a `deny_tool`, it is denied.
+- **Globs are literal + `*`.** `*` matches any run of characters (including empty); there is no `?` or character class. Matching is case-sensitive and must cover the whole name. So `shell.*` catches `shell.exec` but not `shellx`, and `*token*` catches `auth_token`, `token`, and `x_token_y`.
+- **`default` is also the gate for non-`tools/call` methods.** With `default = deny`, an `initialize` or `tools/list` is denied unless you flip the default.
+
+Three sample postures ship in [`policies/`](policies):
+
+| File | Posture |
+|------|---------|
+| [`default.policy`](policies/default.policy) | Deny by default; read-only allow-list; credential redaction. |
+| [`strict.policy`](policies/strict.policy) | A single allowed tool (`read_file`); aggressive redaction; `max_bytes 8192`, `rate_limit 5`. |
+| [`permissive.policy`](policies/permissive.policy) | Allow by default; a small deny-list; light redaction — **dev only.** |
+
+The authoritative format reference is [`docs/POLICY.md`](docs/POLICY.md).
