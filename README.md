@@ -185,3 +185,17 @@ The TypeScript console never touches the wire; it reads the audit log the gatewa
 ![Audit console: decision radar and live event terminal](docs/assets/console.svg)
 
 ```sh
+node console/dist/cli.js report <audit.jsonl> [--json] [--decision D] [--tool S]
+node console/dist/cli.js tail   <audit.jsonl> [--decision D]
+node console/dist/cli.js policy <policy-file>
+```
+
+`report` on the demo log:
+
+```text
+McpBastion — Audit Report
+==========================
+
+Total messages : 10
+Bytes in/out   : 1204 / 582
+Redaction events: 3
