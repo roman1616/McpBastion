@@ -255,3 +255,17 @@ There is no path in which uncertainty resolves to "forward." If the checkpoint c
 # Watch only what got blocked, live
 node console/dist/cli.js tail audit.jsonl --decision deny
 
+# Machine-readable rollup for a dashboard or CI gate
+node console/dist/cli.js report audit.jsonl --json
+
+# Everything a single tool did across a session
+node console/dist/cli.js report audit.jsonl --tool read_file
+
+# Lint a policy before you trust it (exits non-zero on errors)
+node console/dist/cli.js policy policies/strict.policy
+
+# Send audit to stderr (no --audit) and keep only the forwarded stream
+cat session.jsonl | McpBastion --policy p.policy 2>/dev/null > forwarded.jsonl
+```
+
+## Exit behaviour
