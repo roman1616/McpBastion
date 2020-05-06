@@ -199,3 +199,17 @@ McpBastion — Audit Report
 Total messages : 10
 Bytes in/out   : 1204 / 582
 Redaction events: 3
+Unbalanced msgs : 0
+Max depth seen  : 3
+Gateway summary : MATCHES
+
+Decisions
+---------
+  forward      4 ################........
+  deny         6 ########################
+  drop         0 ........................
+  error        0 ........................
+```
+
+- **`report`** aggregates decisions, per-tool activity, redacted-key tallies, byte totals, and top reasons. `--json` emits the machine form; `--decision`/`--tool` narrow the per-event listing.
+- **`tail`** prints one compact line per event — `#3 FORWARD read_file  allow_tool read_file`, with `[redacted: …]` appended when values were masked.
