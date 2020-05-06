@@ -296,3 +296,17 @@ Exit codes (from `gateway/src/main.rs`):
 - **A large message vanished with no deny reason.** It was likely **dropped** by `max_bytes` (checked before anything else) or by the rate limiter — look for `decision: drop` in the audit line.
 - **`policy` reports lint errors and exits non-zero.** Fix unknown directives and non-integer numeric values; those are hard errors. Shadowed allows and redundant allow-lists are only warnings.
 
+## Roadmap
+
+0.1 is intentionally small and honest. Out of scope for now:
+
+- **Response-side inspection.** Today the checkpoint reasons about requests; correlating and gating responses/results is future work.
+- **Richer matching.** `?` and character-class globs, and per-tool argument schemas, are candidates beyond the current literal-plus-`*` matcher.
+- **Live transport adapters.** The `stdin/stdout` JSONL contract is fixed by design; any HTTP/SSE bridging would be a separate, clearly-scoped component — not implied here.
+- **The `error` decision.** Reserved in the schema; wiring internal processing faults to it is planned.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for what 0.1.0 actually shipped.
+
+## Repository layout
+
+```
