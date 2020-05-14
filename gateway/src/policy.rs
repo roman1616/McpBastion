@@ -78,3 +78,21 @@ impl Pattern {
             .map(|s| s.to_string())
             .collect();
         Pattern {
+            raw: raw.to_string(),
+            parts,
+            anchored_start,
+            anchored_end,
+        }
+    }
+
+    pub fn raw(&self) -> &str {
+        &self.raw
+    }
+
+    /// Does this pattern match the whole of `text`?
+    pub fn matches(&self, text: &str) -> bool {
+        if self.parts.is_empty() {
+            // Pattern was "" or "*" or "***" -> matches everything.
+            return true;
+        }
+        let mut pos = 0usize;
