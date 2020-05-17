@@ -132,3 +132,20 @@ pub enum PolicyError {
         value: String,
     },
 }
+
+impl std::fmt::Display for PolicyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PolicyError::UnknownDirective { line, key } => {
+                write!(f, "line {line}: unknown directive '{key}'")
+            }
+            PolicyError::BadValue { line, key, value } => {
+                write!(f, "line {line}: invalid value '{value}' for '{key}'")
+            }
+        }
+    }
+}
+
+impl std::error::Error for PolicyError {}
+
+impl Policy {
