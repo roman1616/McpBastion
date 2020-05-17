@@ -149,3 +149,21 @@ impl std::fmt::Display for PolicyError {
 impl std::error::Error for PolicyError {}
 
 impl Policy {
+    /// Parse a policy from its textual representation.
+    pub fn parse(text: &str) -> Result<Policy, PolicyError> {
+        let mut p = Policy::default();
+        for (idx, raw_line) in text.lines().enumerate() {
+            let line_no = idx + 1;
+            let line = strip_comment(raw_line).trim();
+            if line.is_empty() {
+                continue;
+            }
+            let (key, value) = split_directive(line);
+            let key = key.trim();
+            let value = value.trim();
+            match key {
+                "default" => match value {
+                    "allow" => p.default_allow = true,
+                    "deny" => p.default_allow = false,
+                    other => {
+                        return Err(PolicyError::BadValue {
