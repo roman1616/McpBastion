@@ -114,3 +114,21 @@ impl Pattern {
                 // The final literal must land exactly at the end.
                 return pos == text.len();
             }
+        }
+        true
+    }
+}
+
+/// Errors that can occur while loading a policy file.
+#[derive(Debug)]
+pub enum PolicyError {
+    UnknownDirective {
+        line: usize,
+        key: String,
+    },
+    BadValue {
+        line: usize,
+        key: String,
+        value: String,
+    },
+}
