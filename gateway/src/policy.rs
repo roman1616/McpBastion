@@ -202,3 +202,21 @@ impl Policy {
         }
         if let Some(pat) = self.allow_tools.iter().find(|p| p.matches(tool)) {
             return ToolDecision::Allow {
+                rule: format!("allow_tool {}", pat.raw()),
+            };
+        }
+        if self.default_allow {
+            ToolDecision::Allow {
+                rule: "default allow".to_string(),
+            }
+        } else {
+            ToolDecision::Deny {
+                rule: "default deny".to_string(),
+            }
+        }
+    }
+
+    /// Should this argument key be redacted?
+    pub fn should_redact(&self, arg_key: &str) -> bool {
+        self.redact_args.iter().any(|p| p.matches(arg_key))
+    }
