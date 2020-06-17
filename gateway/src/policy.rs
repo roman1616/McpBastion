@@ -238,3 +238,21 @@ impl ToolDecision {
         }
     }
 }
+
+fn strip_comment(line: &str) -> &str {
+    // A `#` outside of any quoting starts a comment. Our directives never
+    // contain `#` except possibly inside a quoted redaction_mask, which we
+    // handle by only splitting on the first unquoted `#`.
+    let bytes = line.as_bytes();
+    let mut in_quote = false;
+    for (i, &b) in bytes.iter().enumerate() {
+        match b {
+            b'"' => in_quote = !in_quote,
+            b'#' if !in_quote => return &line[..i],
+            _ => {}
+        }
+    }
+    line
+}
+
+fn split_directive(line: &str) -> (&str, &str) {
