@@ -256,3 +256,20 @@ fn strip_comment(line: &str) -> &str {
 }
 
 fn split_directive(line: &str) -> (&str, &str) {
+    if let Some(eq) = line.find('=') {
+        (&line[..eq], &line[eq + 1..])
+    } else if let Some(sp) = line.find(char::is_whitespace) {
+        (&line[..sp], &line[sp + 1..])
+    } else {
+        (line, "")
+    }
+}
+
+fn unquote(value: &str) -> String {
+    let v = value.trim();
+    if v.len() >= 2 && v.starts_with('"') && v.ends_with('"') {
+        v[1..v.len() - 1].to_string()
+    } else {
+        v.to_string()
+    }
+}
