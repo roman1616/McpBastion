@@ -273,3 +273,21 @@ fn unquote(value: &str) -> String {
         v.to_string()
     }
 }
+
+fn parse_usize(value: &str, key: &str, line: usize) -> Result<usize, PolicyError> {
+    value.parse::<usize>().map_err(|_| PolicyError::BadValue {
+        line,
+        key: key.to_string(),
+        value: value.to_string(),
+    })
+}
+
+fn parse_u32(value: &str, key: &str, line: usize) -> Result<u32, PolicyError> {
+    value.parse::<u32>().map_err(|_| PolicyError::BadValue {
+        line,
+        key: key.to_string(),
+        value: value.to_string(),
+    })
+}
+
+fn parse_u64(value: &str, key: &str, line: usize) -> Result<u64, PolicyError> {
