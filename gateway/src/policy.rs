@@ -291,3 +291,21 @@ fn parse_u32(value: &str, key: &str, line: usize) -> Result<u32, PolicyError> {
 }
 
 fn parse_u64(value: &str, key: &str, line: usize) -> Result<u64, PolicyError> {
+    value.parse::<u64>().map_err(|_| PolicyError::BadValue {
+        line,
+        key: key.to_string(),
+        value: value.to_string(),
+    })
+}
+
+/// A sliding-window rate limiter keyed by nothing (global) — the gateway
+/// processes a single session, so one counter suffices.
+#[derive(Debug)]
+pub struct RateLimiter {
+    limit: u32,
+    window_ms: u64,
+    /// Timestamps (ms since an arbitrary epoch) of recent allowed messages.
+    events: Vec<u64>,
+}
+
+impl RateLimiter {
