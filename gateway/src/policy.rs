@@ -220,3 +220,21 @@ impl Policy {
     pub fn should_redact(&self, arg_key: &str) -> bool {
         self.redact_args.iter().any(|p| p.matches(arg_key))
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ToolDecision {
+    Allow { rule: String },
+    Deny { rule: String },
+}
+
+impl ToolDecision {
+    pub fn is_allow(&self) -> bool {
+        matches!(self, ToolDecision::Allow { .. })
+    }
+    pub fn rule(&self) -> &str {
+        match self {
+            ToolDecision::Allow { rule } | ToolDecision::Deny { rule } => rule,
+        }
+    }
+}
