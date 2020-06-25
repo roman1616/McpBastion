@@ -309,3 +309,21 @@ pub struct RateLimiter {
 }
 
 impl RateLimiter {
+    pub fn new(limit: u32, window_ms: u64) -> RateLimiter {
+        RateLimiter {
+            limit,
+            window_ms,
+            events: Vec::new(),
+        }
+    }
+
+    /// Returns `true` if an event at `now_ms` is within the limit. When
+    /// accepted, the event is recorded. `limit == 0` means unlimited.
+    pub fn check(&mut self, now_ms: u64) -> bool {
+        if self.limit == 0 {
+            return true;
+        }
+        let cutoff = now_ms.saturating_sub(self.window_ms);
+        self.events.retain(|&t| t >= cutoff);
+        if (self.events.len() as u32) < self.limit {
+            self.events.push(now_ms);
