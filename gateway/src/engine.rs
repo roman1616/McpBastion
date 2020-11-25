@@ -76,3 +76,18 @@ pub fn process_line(
             event: ev,
         };
     }
+
+    // 3. Tool authorization (only for tools/call). Other methods are governed
+    //    by the default decision so an operator can lock the gateway down to
+    //    tools/call-only if desired.
+    let decision = match method.as_deref() {
+        Some("tools/call") => match &tool {
+            Some(name) => policy.decide_tool(name),
+            None => {
+                // A tools/call without an extractable name is suspicious.
+                ev.decision = Decision::Deny;
+                ev.reason = "tools/call missing extractable params.name".to_string();
+                return Processed {
+                    forward: None,
+                    event: ev,
+                };
