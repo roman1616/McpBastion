@@ -47,3 +47,17 @@ pub fn process_line(
         bytes_in: line.len(),
         bytes_out: 0,
         redacted: Vec::new(),
+        balanced: structure.balanced,
+        max_depth: structure.max_depth,
+    };
+
+    // 1. Size limit.
+    if line.len() > policy.max_bytes {
+        ev.decision = Decision::Drop;
+        ev.reason = format!(
+            "size limit exceeded ({} > max_bytes {})",
+            line.len(),
+            policy.max_bytes
+        );
+        return Processed {
+            forward: None,
