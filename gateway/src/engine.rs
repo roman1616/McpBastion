@@ -195,3 +195,17 @@ deny_tool = shell.*
 redact_arg = *token*
 redact_arg = password
 max_bytes = 4096
+rate_limit = 3
+rate_window_ms = 1000
+redaction_mask = \"***\"
+",
+        )
+        .unwrap()
+    }
+
+    fn run(line: &str, p: &Policy, rl: &mut RateLimiter, seq: u64, now: u64) -> Processed {
+        process_line(line.as_bytes(), p, rl, seq, now)
+    }
+
+    #[test]
+    fn allowed_tool_is_forwarded() {
