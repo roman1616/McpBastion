@@ -165,3 +165,18 @@ fn extract_tool(bytes: &[u8]) -> Option<String> {
     let name = json_scan::find_key_in_object(bytes, params.start, "name")?;
     if name.kind != ValueKind::String {
         return None;
+    }
+    json_scan::decode_string(bytes, name.start, name.end)
+}
+
+/// Return the raw textual form of the top-level `id`, whatever its type.
+fn id_text(bytes: &[u8]) -> Option<String> {
+    let span = json_scan::top_level_span(bytes, "id")?;
+    match span.kind {
+        ValueKind::String => json_scan::decode_string(bytes, span.start, span.end),
+        _ => std::str::from_utf8(&bytes[span.start..span.end])
+            .ok()
+            .map(|s| s.to_string()),
+    }
+}
+
