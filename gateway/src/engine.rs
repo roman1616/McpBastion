@@ -150,3 +150,18 @@ fn looks_like_object(bytes: &[u8]) -> bool {
         match bytes[i] {
             b' ' | b'\t' | b'\r' | b'\n' => i += 1,
             b'{' => return true,
+            _ => return false,
+        }
+    }
+    false
+}
+
+/// Extract the tool name of a `tools/call` request: `params.name` (a string).
+fn extract_tool(bytes: &[u8]) -> Option<String> {
+    let params = json_scan::top_level_span(bytes, "params")?;
+    if params.kind != ValueKind::Object {
+        return None;
+    }
+    let name = json_scan::find_key_in_object(bytes, params.start, "name")?;
+    if name.kind != ValueKind::String {
+        return None;
