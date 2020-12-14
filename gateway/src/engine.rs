@@ -269,3 +269,17 @@ redaction_mask = \"***\"
         assert!(fwd.contains(r#""auth_token":"***""#), "got: {fwd}");
         assert_eq!(out.event.redacted, vec!["auth_token".to_string()]);
     }
+
+    #[test]
+    fn size_limit_drops() {
+        let mut p = engine_policy();
+        p.max_bytes = 10;
+        let mut rl = RateLimiter::new(p.rate_limit, p.rate_window_ms);
+        let out = run(
+            r#"{"method":"tools/call","params":{"name":"read_file","arguments":{}}}"#,
+            &p,
+            &mut rl,
+            1,
+            0,
+        );
+        assert_eq!(out.event.decision, Decision::Drop);
