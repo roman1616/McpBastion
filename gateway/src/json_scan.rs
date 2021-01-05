@@ -89,3 +89,24 @@ fn scan_string(bytes: &[u8], i: usize) -> Option<usize> {
 /// Decode a JSON string literal (whose raw span is `bytes[start..end]`,
 /// including the surrounding quotes) into a Rust `String`.
 ///
+/// Supports the standard JSON escapes and `\uXXXX` (including surrogate pairs).
+/// Returns `None` if the span is not a well-formed string literal.
+pub fn decode_string(bytes: &[u8], start: usize, end: usize) -> Option<String> {
+    if end <= start || bytes.get(start) != Some(&b'"') || bytes.get(end - 1) != Some(&b'"') {
+        return None;
+    }
+    let inner = &bytes[start + 1..end - 1];
+    let mut out = String::with_capacity(inner.len());
+    let mut i = 0;
+    while i < inner.len() {
+        let b = inner[i];
+        if b != b'\\' {
+            out.push(b as char);
+            i += 1;
+            continue;
+        }
+        i += 1;
+        let esc = *inner.get(i)?;
+        match esc {
+            b'"' => out.push('"'),
+            b'\\' => out.push('\\'),
