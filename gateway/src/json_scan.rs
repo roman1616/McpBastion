@@ -68,3 +68,24 @@ fn skip_ws(bytes: &[u8], mut i: usize) -> usize {
 fn scan_string(bytes: &[u8], i: usize) -> Option<usize> {
     debug_assert_eq!(bytes.get(i).copied(), Some(b'"'));
     let mut j = i + 1;
+    while j < bytes.len() {
+        match bytes[j] {
+            b'\\' => {
+                // Skip the escape introducer and the escaped byte. For `\u`
+                // we additionally skip the 4 hex digits (bounds-checked).
+                if bytes.get(j + 1) == Some(&b'u') {
+                    j += 6;
+                } else {
+                    j += 2;
+                }
+            }
+            b'"' => return Some(j + 1),
+            _ => j += 1,
+        }
+    }
+    None
+}
+
+/// Decode a JSON string literal (whose raw span is `bytes[start..end]`,
+/// including the surrounding quotes) into a Rust `String`.
+///
