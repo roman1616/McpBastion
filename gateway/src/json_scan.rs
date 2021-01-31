@@ -237,3 +237,24 @@ fn read_hex4(bytes: &[u8], i: usize) -> Option<u32> {
 fn scan_value_end(bytes: &[u8], i: usize) -> Option<usize> {
     let i = skip_ws(bytes, i);
     match bytes.get(i)? {
+        b'"' => scan_string(bytes, i),
+        b'{' => scan_container(bytes, i, b'{', b'}'),
+        b'[' => scan_container(bytes, i, b'[', b']'),
+        _ => {
+            // Scalar: read until a structural terminator at the current level.
+            let mut j = i;
+            while j < bytes.len() {
+                match bytes[j] {
+                    b',' | b'}' | b']' | b' ' | b'\t' | b'\r' | b'\n' => break,
+                    _ => j += 1,
+                }
+            }
+            if j == i {
+                None
+            } else {
+                Some(j)
+            }
+        }
+    }
+}
+
