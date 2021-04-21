@@ -90,3 +90,19 @@ fn parse_args() -> Result<Args, String> {
             }
             other => return Err(format!("unknown argument: {other}")),
         }
+    }
+    Ok(a)
+}
+
+fn main() -> ExitCode {
+    let args = match parse_args() {
+        Ok(a) => a,
+        Err(e) => {
+            eprintln!("error: {e}\n\n{USAGE}");
+            return ExitCode::from(2);
+        }
+    };
+
+    let policy_path = match &args.policy_path {
+        Some(p) => p,
+        None => {
