@@ -137,3 +137,19 @@ fn main() -> ExitCode {
         },
         None => Box::new(io::stderr()),
     };
+
+    let stdin = io::stdin();
+    let stdout = io::stdout();
+    let mut out = stdout.lock();
+
+    let run = run_session(
+        &policy,
+        stdin.lock(),
+        &mut out,
+        audit_sink.as_mut(),
+        args.epoch_ms,
+        args.stats,
+    );
+
+    if let Err(e) = run {
+        eprintln!("error: {e}");
