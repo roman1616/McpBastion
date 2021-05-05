@@ -169,3 +169,19 @@ fn run_session<R: Read>(
 ) -> io::Result<()> {
     let mut limiter = RateLimiter::new(policy.rate_limit, policy.rate_window_ms);
     let start = Instant::now();
+    let base = epoch_ms.unwrap_or(0);
+
+    let mut seq: u64 = 0;
+    let mut counts: BTreeMap<&'static str, u64> = BTreeMap::new();
+
+    let buf = BufReader::new(reader);
+    for line_res in buf.lines() {
+        let line = line_res?;
+        let trimmed = line.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+        seq += 1;
+
+        // Timestamp: fixed base + monotonic offset. In deterministic mode
+        // (epoch given) we still add the elapsed offset so rate windows behave,
