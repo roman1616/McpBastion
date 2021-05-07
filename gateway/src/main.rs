@@ -201,3 +201,19 @@ fn run_session<R: Read>(
         writeln!(audit, "{}", ev.to_json())?;
         audit.flush()?;
     }
+
+    if stats {
+        let summary = format!(
+            "{{\"summary\":true,\"total\":{},\"forward\":{},\"deny\":{},\"drop\":{},\"error\":{}}}",
+            seq,
+            counts.get(Decision::Forward.as_str()).copied().unwrap_or(0),
+            counts.get(Decision::Deny.as_str()).copied().unwrap_or(0),
+            counts.get(Decision::Drop.as_str()).copied().unwrap_or(0),
+            counts.get(Decision::Error.as_str()).copied().unwrap_or(0),
+        );
+        writeln!(audit, "{summary}")?;
+        audit.flush()?;
+    }
+
+    Ok(())
+}
