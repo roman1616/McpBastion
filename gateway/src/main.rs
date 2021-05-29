@@ -233,3 +233,18 @@ deny_tool = shell.*
 redact_arg = *token*
 max_bytes = 8192
 rate_limit = 0
+redaction_mask = \"***\"
+";
+
+    fn session(input: &str) -> (String, String) {
+        let policy = Policy::parse(POLICY).unwrap();
+        let mut out = Vec::new();
+        let mut audit = Vec::new();
+        run_session(
+            &policy,
+            input.as_bytes(),
+            &mut out,
+            &mut audit,
+            Some(1000),
+            true,
+        )
