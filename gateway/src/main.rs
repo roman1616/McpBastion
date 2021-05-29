@@ -217,3 +217,19 @@ fn run_session<R: Read>(
 
     Ok(())
 }
+
+fn elapsed_ms(start: &Instant) -> u64 {
+    start.elapsed().as_millis() as u64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const POLICY: &str = "\
+default = deny
+allow_tool = read_file
+deny_tool = shell.*
+redact_arg = *token*
+max_bytes = 8192
+rate_limit = 0
