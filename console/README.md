@@ -8,3 +8,9 @@ build time to compile the sources. Nothing is required at runtime.
 
 ## Build & test
 
+```sh
+npm install       # installs the build-time devDependencies
+npm run build     # tsc -> dist/
+npm test          # node --test over compiled tests
+npm run typecheck # tsc --noEmit
+```
