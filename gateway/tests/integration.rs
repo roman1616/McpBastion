@@ -76,3 +76,12 @@ fn rate_limit_enforced_across_calls() {
             Decision::Forward => forwarded += 1,
             Decision::Drop => dropped += 1,
             other => panic!("unexpected decision {other:?}"),
+        }
+    }
+    assert_eq!(forwarded, 5);
+    assert_eq!(dropped, 5);
+}
+
+#[test]
+fn structural_metadata_recorded() {
+    let p = policy();
