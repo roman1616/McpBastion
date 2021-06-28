@@ -44,3 +44,17 @@ export type ParsedLine =
   | { readonly kind: "summary"; readonly summary: SummaryLine }
   | { readonly kind: "error"; readonly line: number; readonly message: string };
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function asNumber(o: Record<string, unknown>, key: string): number {
+  const v = o[key];
+  if (typeof v !== "number" || !Number.isFinite(v)) {
+    throw new Error(`field '${key}' must be a finite number`);
+  }
+  return v;
+}
+
+function asBool(o: Record<string, unknown>, key: string): boolean {
+  const v = o[key];
