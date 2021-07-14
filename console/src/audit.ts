@@ -128,3 +128,17 @@ export function parseLine(raw: string, lineNo: number): ParsedLine {
           total: asNumber(value, "total"),
           forward: asNumber(value, "forward"),
           deny: asNumber(value, "deny"),
+          drop: asNumber(value, "drop"),
+          error: asNumber(value, "error"),
+        },
+      };
+    }
+    const event: AuditEvent = {
+      tsMs: asNumber(value, "ts_ms"),
+      seq: asNumber(value, "seq"),
+      decision: asDecision(value, "decision"),
+      reason: asString(value, "reason"),
+      method: asStringOrNull(value, "method"),
+      tool: asStringOrNull(value, "tool"),
+      id: asStringOrNull(value, "id"),
+      bytesIn: asNumber(value, "bytes_in"),
