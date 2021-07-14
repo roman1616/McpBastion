@@ -114,3 +114,17 @@ export function parseLine(raw: string, lineNo: number): ParsedLine {
       kind: "error",
       line: lineNo,
       message: `invalid JSON: ${(err as Error).message}`,
+    };
+  }
+  if (!isRecord(value)) {
+    return { kind: "error", line: lineNo, message: "line is not a JSON object" };
+  }
+  try {
+    if (value["summary"] === true) {
+      return {
+        kind: "summary",
+        summary: {
+          summary: true,
+          total: asNumber(value, "total"),
+          forward: asNumber(value, "forward"),
+          deny: asNumber(value, "deny"),
