@@ -142,3 +142,17 @@ export function parseLine(raw: string, lineNo: number): ParsedLine {
       tool: asStringOrNull(value, "tool"),
       id: asStringOrNull(value, "id"),
       bytesIn: asNumber(value, "bytes_in"),
+      bytesOut: asNumber(value, "bytes_out"),
+      redacted: asStringArray(value, "redacted"),
+      balanced: asBool(value, "balanced"),
+      maxDepth: asNumber(value, "max_depth"),
+    };
+    return { kind: "event", event };
+  } catch (err) {
+    return { kind: "error", line: lineNo, message: (err as Error).message };
+  }
+}
+
+/** Result of parsing a whole audit log. */
+export interface ParseReport {
+  readonly events: AuditEvent[];
