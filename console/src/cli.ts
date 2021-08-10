@@ -15,3 +15,15 @@
  *
  * Reads files with `node:fs`; no third-party dependencies.
  */
+
+import { readFileSync } from "node:fs";
+import process from "node:process";
+
+import { parseAuditLog } from "./audit.js";
+import type { Decision } from "./audit.js";
+import { aggregate, filterEvents } from "./report.js";
+import { parsePolicy } from "./policy.js";
+import { renderReport, renderReportJson, renderPolicy } from "./render.js";
+
+const VALID_DECISIONS: readonly Decision[] = ["forward", "deny", "drop", "error"];
+
