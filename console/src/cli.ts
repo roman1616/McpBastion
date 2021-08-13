@@ -53,3 +53,16 @@ function parseFlags(argv: string[]): Flags {
     else if (a === "--decision") {
       const v = argv[++i];
       if (v === undefined || !VALID_DECISIONS.includes(v as Decision)) {
+        fail(`--decision must be one of ${VALID_DECISIONS.join(", ")}`);
+      }
+      flags.decision = v as Decision;
+    } else if (a === "--tool") {
+      const v = argv[++i];
+      if (v === undefined) fail("--tool requires a value");
+      flags.tool = v;
+    } else if (a.startsWith("--")) {
+      fail(`unknown flag: ${a}`);
+    } else {
+      flags.positional.push(a);
+    }
+  }
