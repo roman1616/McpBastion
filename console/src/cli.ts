@@ -91,3 +91,16 @@ function buildFilter(flags: Flags): { decision?: Decision; tool?: string } {
 
 function cmdReport(flags: Flags): number {
   const path = flags.positional[0];
+  if (path === undefined) fail("report requires an <audit.jsonl> path");
+  const body = readFileOrFail(path);
+  const report = parseAuditLog(body);
+  const agg = aggregate(report);
+
+  if (flags.json) {
+    process.stdout.write(renderReportJson(agg) + "\n");
+  } else {
+    process.stdout.write(renderReport(agg) + "\n");
+    const filtered = filterEvents(report.events, buildFilter(flags));
+    if (flags.decision !== undefined || flags.tool !== undefined) {
+      process.stdout.write("\nFiltered events\n---------------\n");
+      for (const ev of filtered) {
