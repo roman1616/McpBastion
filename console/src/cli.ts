@@ -78,3 +78,16 @@ function readFileOrFail(path: string): string {
   try {
     return readFileSync(path, "utf8");
   } catch (err) {
+    return fail(`cannot read '${path}': ${(err as Error).message}`);
+  }
+}
+
+function buildFilter(flags: Flags): { decision?: Decision; tool?: string } {
+  const f: { decision?: Decision; tool?: string } = {};
+  if (flags.decision !== undefined) f.decision = flags.decision;
+  if (flags.tool !== undefined) f.tool = flags.tool;
+  return f;
+}
+
+function cmdReport(flags: Flags): number {
+  const path = flags.positional[0];
