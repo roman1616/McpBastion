@@ -129,3 +129,16 @@ function cmdTail(flags: Flags): number {
   for (const ev of events) {
     const redaction = ev.redacted.length > 0 ? ` [redacted: ${ev.redacted.join(",")}]` : "";
     process.stdout.write(
+      `#${ev.seq} ${ev.decision.toUpperCase().padEnd(7)} ${(ev.tool ?? ev.method ?? "-").padEnd(16)} ${ev.reason}${redaction}\n`,
+    );
+  }
+  return 0;
+}
+
+function cmdPolicy(flags: Flags): number {
+  const path = flags.positional[0];
+  if (path === undefined) fail("policy requires a <policy-file> path");
+  const body = readFileOrFail(path);
+  const { policy, issues } = parsePolicy(body);
+  process.stdout.write(renderPolicy(policy, issues) + "\n");
+  return issues.some((i) => i.severity === "error") ? 1 : 0;
