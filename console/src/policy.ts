@@ -101,3 +101,20 @@ export function parsePolicy(text: string): PolicyParseResult {
     if (line.length === 0) continue;
     const [key, value] = splitDirective(line);
 
+    if (!KNOWN_DIRECTIVES.has(key)) {
+      issues.push({
+        line: lineNo,
+        severity: "error",
+        message: `unknown directive '${key}'`,
+      });
+      continue;
+    }
+
+    switch (key) {
+      case "default":
+        if (value === "allow") policy.defaultAllow = true;
+        else if (value === "deny") policy.defaultAllow = false;
+        else
+          issues.push({
+            line: lineNo,
+            severity: "error",
