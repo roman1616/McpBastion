@@ -35,3 +35,15 @@ export function renderReport(agg: Aggregate): string {
   lines.push(`Unbalanced msgs : ${agg.unbalanced}`);
   lines.push(`Max depth seen  : ${agg.maxDepthSeen}`);
   if (agg.summaryMatches !== null) {
+    lines.push(`Gateway summary : ${agg.summaryMatches ? "MATCHES" : "MISMATCH!"}`);
+  }
+  lines.push("");
+
+  lines.push("Decisions");
+  lines.push("---------");
+  const decMax = Math.max(
+    agg.counts.forward,
+    agg.counts.deny,
+    agg.counts.drop,
+    agg.counts.error,
+    1,
