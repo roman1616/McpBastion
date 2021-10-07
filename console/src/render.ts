@@ -47,3 +47,15 @@ export function renderReport(agg: Aggregate): string {
     agg.counts.drop,
     agg.counts.error,
     1,
+  );
+  for (const [name, count] of [
+    ["forward", agg.counts.forward],
+    ["deny", agg.counts.deny],
+    ["drop", agg.counts.drop],
+    ["error", agg.counts.error],
+  ] as const) {
+    lines.push(`  ${pad(name, 8)} ${padLeft(String(count), 5)} ${bar(count, decMax)}`);
+  }
+  lines.push("");
+
+  if (agg.tools.length > 0) {
