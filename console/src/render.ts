@@ -24,3 +24,14 @@ function padLeft(s: string, n: number): string {
 }
 
 /** Render the aggregate as a human-readable multi-line report. */
+export function renderReport(agg: Aggregate): string {
+  const lines: string[] = [];
+  lines.push("MCP Bastion — Audit Report");
+  lines.push("==========================");
+  lines.push("");
+  lines.push(`Total messages : ${agg.total}`);
+  lines.push(`Bytes in/out   : ${agg.bytesIn} / ${agg.bytesOut}`);
+  lines.push(`Redaction events: ${agg.redactionEvents}`);
+  lines.push(`Unbalanced msgs : ${agg.unbalanced}`);
+  lines.push(`Max depth seen  : ${agg.maxDepthSeen}`);
+  if (agg.summaryMatches !== null) {
