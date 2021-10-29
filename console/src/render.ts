@@ -94,3 +94,15 @@ export function renderReport(agg: Aggregate): string {
 export function renderReportJson(agg: Aggregate): string {
   const obj = {
     total: agg.total,
+    counts: agg.counts,
+    bytesIn: agg.bytesIn,
+    bytesOut: agg.bytesOut,
+    redactionEvents: agg.redactionEvents,
+    unbalanced: agg.unbalanced,
+    maxDepthSeen: agg.maxDepthSeen,
+    summaryMatches: agg.summaryMatches,
+    redactedKeyCounts: Object.fromEntries(agg.redactedKeyCounts),
+    reasonCounts: Object.fromEntries(agg.reasonCounts),
+    tools: agg.tools,
+  };
+  return JSON.stringify(obj, null, 2);
