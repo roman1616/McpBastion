@@ -25,3 +25,16 @@ export interface ToolStat {
 export interface Aggregate {
   readonly total: number;
   readonly counts: DecisionCounts;
+  readonly bytesIn: number;
+  readonly bytesOut: number;
+  readonly redactionEvents: number;
+  readonly redactedKeyCounts: ReadonlyMap<string, number>;
+  readonly reasonCounts: ReadonlyMap<string, number>;
+  readonly tools: readonly ToolStat[];
+  readonly unbalanced: number;
+  readonly maxDepthSeen: number;
+  /** Consistency check against the gateway's own summary line, if present. */
+  readonly summaryMatches: boolean | null;
+}
+
+function emptyCounts(): DecisionCounts {
