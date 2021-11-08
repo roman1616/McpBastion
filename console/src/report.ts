@@ -38,3 +38,17 @@ export interface Aggregate {
 }
 
 function emptyCounts(): DecisionCounts {
+  return { forward: 0, deny: 0, drop: 0, error: 0 };
+}
+
+function bump(counts: DecisionCounts, d: Decision): void {
+  counts[d] += 1;
+}
+
+/** Compute the full aggregate from a parse report. */
+export function aggregate(report: ParseReport): Aggregate {
+  const counts = emptyCounts();
+  let bytesIn = 0;
+  let bytesOut = 0;
+  let redactionEvents = 0;
+  let unbalanced = 0;
