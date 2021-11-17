@@ -78,3 +78,16 @@ export function aggregate(report: ParseReport): Aggregate {
           tool: ev.tool,
           total: 0,
           forwarded: 0,
+          denied: 0,
+          dropped: 0,
+          mutable: true,
+        } as ToolStat & { mutable: true });
+      const next = {
+        ...prev,
+        total: prev.total + 1,
+        forwarded: prev.forwarded + (ev.decision === "forward" ? 1 : 0),
+        denied: prev.denied + (ev.decision === "deny" ? 1 : 0),
+        dropped: prev.dropped + (ev.decision === "drop" ? 1 : 0),
+      };
+      toolAgg.set(ev.tool, next);
+    }
