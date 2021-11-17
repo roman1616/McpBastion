@@ -65,3 +65,16 @@ export function aggregate(report: ParseReport): Aggregate {
     if (ev.redacted.length > 0) redactionEvents += 1;
     if (!ev.balanced) unbalanced += 1;
     if (ev.maxDepth > maxDepthSeen) maxDepthSeen = ev.maxDepth;
+
+    for (const key of ev.redacted) {
+      redactedKeyCounts.set(key, (redactedKeyCounts.get(key) ?? 0) + 1);
+    }
+    reasonCounts.set(ev.reason, (reasonCounts.get(ev.reason) ?? 0) + 1);
+
+    if (ev.tool !== null) {
+      const prev =
+        toolAgg.get(ev.tool) ??
+        ({
+          tool: ev.tool,
+          total: 0,
+          forwarded: 0,
