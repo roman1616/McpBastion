@@ -91,3 +91,16 @@ export function aggregate(report: ParseReport): Aggregate {
       };
       toolAgg.set(ev.tool, next);
     }
+  }
+
+  const tools = [...toolAgg.values()]
+    .map(({ mutable: _mutable, ...rest }) => rest)
+    .sort((a, b) => b.total - a.total || a.tool.localeCompare(b.tool));
+
+  let summaryMatches: boolean | null = null;
+  if (report.summary) {
+    const s = report.summary;
+    summaryMatches =
+      s.total === report.events.length &&
+      s.forward === counts.forward &&
+      s.deny === counts.deny &&
