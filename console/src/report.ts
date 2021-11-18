@@ -104,3 +104,17 @@ export function aggregate(report: ParseReport): Aggregate {
       s.total === report.events.length &&
       s.forward === counts.forward &&
       s.deny === counts.deny &&
+      s.drop === counts.drop &&
+      s.error === counts.error;
+  }
+
+  return {
+    total: report.events.length,
+    counts,
+    bytesIn,
+    bytesOut,
+    redactionEvents,
+    redactedKeyCounts,
+    reasonCounts,
+    tools,
+    unbalanced,
