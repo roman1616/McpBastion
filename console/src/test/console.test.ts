@@ -33,3 +33,14 @@ test("parseLine parses the summary line", () => {
   assert.equal(r.kind, "summary");
   if (r.kind === "summary") assert.equal(r.summary.total, 3);
 });
+
+test("parseLine reports invalid JSON as error", () => {
+  const r = parseLine("{not json", 5);
+  assert.equal(r.kind, "error");
+  if (r.kind === "error") assert.equal(r.line, 5);
+});
+
+test("parseLine rejects wrong field type", () => {
+  const r = parseLine('{"ts_ms":"x","seq":1,"decision":"forward","reason":"r","method":null,"tool":null,"id":null,"bytes_in":0,"bytes_out":0,"redacted":[],"balanced":true,"max_depth":0}', 1);
+  assert.equal(r.kind, "error");
+});
