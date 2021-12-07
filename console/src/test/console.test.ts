@@ -54,3 +54,13 @@ test("parseAuditLog collects events and summary", () => {
   const rep = parseAuditLog(SAMPLE);
   assert.equal(rep.events.length, 3);
   assert.ok(rep.summary);
+  assert.equal(rep.errors.length, 0);
+});
+
+test("aggregate computes decision counts and byte totals", () => {
+  const rep = parseAuditLog(SAMPLE);
+  const agg = aggregate(rep);
+  assert.equal(agg.total, 3);
+  assert.equal(agg.counts.forward, 2);
+  assert.equal(agg.counts.deny, 1);
+  assert.equal(agg.bytesIn, 110 + 141 + 108);
