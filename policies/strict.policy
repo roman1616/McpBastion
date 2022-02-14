@@ -7,3 +7,7 @@ default = deny
 
 allow_tool = read_file
 
+# Redact anything that even smells like a credential or identifier.
+redact_arg = *token*
+redact_arg = *secret*
+redact_arg = *key*
