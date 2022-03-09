@@ -40,3 +40,15 @@ class. Matching is case-sensitive and must cover the **whole** string.
 
 Examples:
 
+| Pattern       | Matches                         | Does not match     |
+|---------------|----------------------------------|--------------------|
+| `read_file`   | `read_file`                      | `read_files`       |
+| `shell.*`     | `shell.exec`, `shell.spawn`      | `shellx`           |
+| `*token*`     | `auth_token`, `token`, `x_token_y` | `tokn`           |
+| `*_secret`    | `db_secret`, `api_secret`        | `secret_key`       |
+
+## Decision order
+
+For a `tools/call` message the gateway evaluates, in order:
+
+1. **Size** — if the raw message exceeds `max_bytes`, it is **dropped**.
