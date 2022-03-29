@@ -47,3 +47,15 @@ It deliberately does **not**:
 Consequences, by design:
 
 - The gateway only inspects the fields it needs: top-level `method` and `id`,
+  and `params.name` / `params.arguments` for `tools/call`.
+- If it cannot confidently extract a needed field (e.g. a `tools/call` whose
+  `params.name` is missing or not a string), it **fails closed** and denies the
+  message rather than guessing.
+- A structural balance check is run purely to populate audit metadata
+  (`balanced`, `max_depth`); it never rejects a message on its own.
+
+## Fields consulted
+
+| Field              | Used for                                             |
+|--------------------|------------------------------------------------------|
+| `method`           | Classify the message; only `tools/call` is tool-gated.|
