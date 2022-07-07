@@ -16,3 +16,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Rust toolchain
         run: rustup component add clippy rustfmt
+      - name: Format check
+        run: cargo fmt --check
+      - name: Clippy (deny warnings)
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --all-targets
+      - name: Release build
+        run: cargo build --release
+
+  console:
+    name: TypeScript console
+    runs-on: ubuntu-latest
