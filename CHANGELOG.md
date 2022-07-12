@@ -10,3 +10,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 - Anomaly flagging for unusual argument sizes and repeat calls.
 
 ### Changed
+- Wildcard tool matching with explicit-deny precedence.
