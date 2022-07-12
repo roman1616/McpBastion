@@ -7,3 +7,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 
 ### Added
 - 1.0 hardening: fuzzed parser inputs, zero-dependency TS console build.
+- Anomaly flagging for unusual argument sizes and repeat calls.
