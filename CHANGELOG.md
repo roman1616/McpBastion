@@ -13,3 +13,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 - Wildcard tool matching with explicit-deny precedence.
 
 ## [0.9.0] - 2026-02-27
+
