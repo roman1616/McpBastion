@@ -20,3 +20,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ## [0.8.0] - 2025-11-14
 
 ### Added
+- Audit report export (markdown + JSON) with stable event IDs.
