@@ -25,3 +25,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ## [0.7.0] - 2025-05-23
 
 ### Added
+- Per-tool risk scoring heuristic and console v1 (policy editor + live view).
