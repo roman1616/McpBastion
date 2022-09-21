@@ -30,3 +30,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ## [0.6.0] - 2025-02-07
 
 ### Added
+- Hot reload of policy files without dropping active sessions.
