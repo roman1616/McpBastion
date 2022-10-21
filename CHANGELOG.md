@@ -38,3 +38,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 - Session replay for incident forensics and a diff view between two sessions.
 
 ## [0.4.0] - 2024-03-15
+
