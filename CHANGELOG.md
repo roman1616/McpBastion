@@ -40,3 +40,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ## [0.4.0] - 2024-03-15
 
 ### Added
+- Policy bundles: default / permissive / strict, plus secrets scrubbing.
