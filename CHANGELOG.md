@@ -42,3 +42,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ### Added
 - Policy bundles: default / permissive / strict, plus secrets scrubbing.
 
+## [0.3.0] - 2023-04-21
