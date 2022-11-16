@@ -46,3 +46,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 
 ### Added
 - Audit events with stable IDs, shell-command detection in arguments,
+  and egress host allowlists.
