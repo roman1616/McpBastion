@@ -48,3 +48,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 - Audit events with stable IDs, shell-command detection in arguments,
   and egress host allowlists.
 
+## [0.2.0] - 2022-02-18
