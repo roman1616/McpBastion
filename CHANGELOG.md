@@ -50,3 +50,4 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 
 ## [0.2.0] - 2022-02-18
 
+### Added
