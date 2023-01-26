@@ -115,3 +115,40 @@ The six that never reach the server, and why:
 | 10 | *(missing name)* | deny | `tools/call missing extractable params.name` |
 
 Everything the gateway wrote to the audit sink for this run is captured verbatim in [`sessions/demo-audit.jsonl`](sessions/demo-audit.jsonl), and the forwarded stream in [`sessions/demo-forwarded.jsonl`](sessions/demo-forwarded.jsonl).
+
+## Policy routing
+
+A policy is a tiny, line-oriented file (`key = value` or `key value`; `#` comments; blank lines ignored). The [`default.policy`](policies/default.policy) posture reads like a checkpoint duty roster:
+
+```text
+default = deny
+
+allow_tool = read_file
+allow_tool = list_dir
+allow_tool = search_files
+allow_tool = get_metadata
+
+deny_tool  = shell.*
+deny_tool  = fs.delete
+deny_tool  = net.*
+
+redact_arg = *token*
+redact_arg = *secret*
+redact_arg = api_key
+redact_arg = authorization
+
+max_bytes      = 65536
+rate_limit     = 20
+rate_window_ms = 1000
+redaction_mask = "«redacted»"
+```
+
+Routing rules that matter:
+
+- **Deny wins.** If a tool matches both an `allow_tool` and a `deny_tool`, it is denied.
+- **Globs are literal + `*`.** `*` matches any run of characters (including empty); there is no `?` or character class. Matching is case-sensitive and must cover the whole name. So `shell.*` catches `shell.exec` but not `shellx`, and `*token*` catches `auth_token`, `token`, and `x_token_y`.
+- **`default` is also the gate for non-`tools/call` methods.** With `default = deny`, an `initialize` or `tools/list` is denied unless you flip the default.
+
+Three sample postures ship in [`policies/`](policies):
+
+| File | Posture |
