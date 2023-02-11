@@ -75,3 +75,16 @@ audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
   "ts_ms":     4,
   "seq":       3,
   "decision":  "forward",
+  "reason":    "allow_tool read_file",
+  "method":    "tools/call",
+  "tool":      "read_file",
+  "id":        "3",
+  "bytes_in":  110,
+  "bytes_out": 110,
+  "redacted":  ["auth_token"],
+  "balanced":  true,
+  "max_depth": 3
+}
+```
+
+| Field       | Type              | Notes |
