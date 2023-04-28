@@ -123,3 +123,40 @@ A policy is a tiny, line-oriented file (`key = value` or `key value`; `#` commen
 ```text
 default = deny
 
+allow_tool = read_file
+allow_tool = list_dir
+allow_tool = search_files
+allow_tool = get_metadata
+
+deny_tool  = shell.*
+deny_tool  = fs.delete
+deny_tool  = net.*
+
+redact_arg = *token*
+redact_arg = *secret*
+redact_arg = api_key
+redact_arg = authorization
+
+max_bytes      = 65536
+rate_limit     = 20
+rate_window_ms = 1000
+redaction_mask = "«redacted»"
+```
+
+Routing rules that matter:
+
+- **Deny wins.** If a tool matches both an `allow_tool` and a `deny_tool`, it is denied.
+- **Globs are literal + `*`.** `*` matches any run of characters (including empty); there is no `?` or character class. Matching is case-sensitive and must cover the whole name. So `shell.*` catches `shell.exec` but not `shellx`, and `*token*` catches `auth_token`, `token`, and `x_token_y`.
+- **`default` is also the gate for non-`tools/call` methods.** With `default = deny`, an `initialize` or `tools/list` is denied unless you flip the default.
+
+Three sample postures ship in [`policies/`](policies):
+
+| File | Posture |
+|------|---------|
+| [`default.policy`](policies/default.policy) | Deny by default; read-only allow-list; credential redaction. |
+| [`strict.policy`](policies/strict.policy) | A single allowed tool (`read_file`); aggressive redaction; `max_bytes 8192`, `rate_limit 5`. |
+| [`permissive.policy`](policies/permissive.policy) | Allow by default; a small deny-list; light redaction — **dev only.** |
+
+The authoritative format reference is [`docs/POLICY.md`](docs/POLICY.md).
+
+## The redaction pipeline
