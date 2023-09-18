@@ -94,3 +94,17 @@ audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
 | `decision`  | string            | `forward` \| `deny` \| `drop` \| `error`. |
 | `reason`    | string            | Human-readable rule that produced the decision. |
 | `method`    | string \| null    | Extracted `method`, or null. |
+| `tool`      | string \| null    | Extracted `params.name` for `tools/call`, else null. |
+| `id`        | string \| null    | Raw text of the top-level `id`, or null. |
+| `bytes_in`  | number            | Length of the input line in bytes. |
+| `bytes_out` | number            | Length of the forwarded message, or 0. |
+| `redacted`  | string[]          | Argument keys whose values were redacted. |
+| `balanced`  | boolean           | Whether brackets/quotes balanced across the input. |
+| `max_depth` | number            | Maximum nesting depth observed. |
+
+### Decisions
+
+| Decision  | Meaning                                                        |
+|-----------|----------------------------------------------------------------|
+| `forward` | Permitted (after any redaction); written to stdout.            |
+| `deny`    | Blocked by an allow/deny rule or fail-closed extraction.       |
