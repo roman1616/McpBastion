@@ -55,3 +55,17 @@ Consequences, by design:
   (`balanced`, `max_depth`); it never rejects a message on its own.
 
 ## Fields consulted
+
+| Field              | Used for                                             |
+|--------------------|------------------------------------------------------|
+| `method`           | Classify the message; only `tools/call` is tool-gated.|
+| `id`               | Recorded verbatim in the audit event.                |
+| `params.name`      | The tool name matched against allow/deny lists.      |
+| `params.arguments` | The object whose member values are redacted.         |
+
+## Audit event schema
+
+Every processed message emits exactly one JSON object, one per line, to the
+audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
+[`gateway/src/audit.rs`](../gateway/src/audit.rs); the consumer is
+[`console/src/audit.ts`](../console/src/audit.ts).
