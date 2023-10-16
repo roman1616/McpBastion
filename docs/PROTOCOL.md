@@ -69,3 +69,17 @@ Every processed message emits exactly one JSON object, one per line, to the
 audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
 [`gateway/src/audit.rs`](../gateway/src/audit.rs); the consumer is
 [`console/src/audit.ts`](../console/src/audit.ts).
+
+```json
+{
+  "ts_ms":     4,
+  "seq":       3,
+  "decision":  "forward",
+  "reason":    "allow_tool read_file",
+  "method":    "tools/call",
+  "tool":      "read_file",
+  "id":        "3",
+  "bytes_in":  110,
+  "bytes_out": 110,
+  "redacted":  ["auth_token"],
+  "balanced":  true,
