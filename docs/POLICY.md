@@ -61,3 +61,13 @@ For a `tools/call` message the gateway evaluates, in order:
 7. **Rate limit** — if it would be forwarded but the window is full, **drop**.
 8. **Redaction** — matching argument values are replaced, then the message is
    **forwarded**.
+
+Methods other than `tools/call` (e.g. `initialize`, `tools/list`) are gated
+solely by `default`, so `default = deny` locks the gateway to an audited
+allow-list of tool calls and nothing else.
+
+## Worked example
+
+```text
+default = deny
+allow_tool = read_file
