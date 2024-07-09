@@ -160,3 +160,40 @@ Three sample postures ship in [`policies/`](policies):
 The authoritative format reference is [`docs/POLICY.md`](docs/POLICY.md).
 
 ## The redaction pipeline
+
+Redaction is surgical, not cosmetic. Given a forwarded `tools/call`, the gateway locates `params.arguments` (an object) with the extractor, walks its **immediate** members, and for each key matching a `redact_arg` glob it replaces *only that value's byte span* with the mask encoded as a JSON string. Everything outside those spans is relayed verbatim (`gateway/src/redact.rs`).
+
+- Splices are applied from the end of the line backwards, so earlier byte offsets stay valid.
+- A non-string value redacts wholesale: `{"creds":{"k":"v"}}` with `redact_arg = creds` becomes `{"creds":"«redacted»"}`.
+- The redacted key names (not the values) are recorded in the audit event's `redacted` array, so you can prove *what* was masked without ever logging the secret itself.
+- If there is no `params.arguments` object, nothing changes and the original bytes pass through.
+
+In the demo, `api_key`, `access_token`, and `authorization` are masked across three messages — visible as `bytes_out < bytes_in` on those audit lines.
+
+## Rate, size and depth controls
+
+Three independent limiters, each with a distinct job and a distinct outcome:
+
+- **`max_bytes`** — a hard ceiling checked *first*, before parsing. Over-limit lines are **dropped** (`decision: drop`). Default `262144`.
+- **`rate_limit` / `rate_window_ms`** — a sliding-window counter over *forwarded* messages only. When the window is full, the next would-be-forwarded message is **dropped**. `rate_limit = 0` means unlimited. Denied messages never consume the budget.
+- **`max_depth`** — **advisory only.** The structural scan records the maximum nesting depth per message into the audit field `max_depth`, but a deep message is **not** rejected on that basis. It is a signal for the console, not a gate. (The `balanced` audit field is similarly advisory.)
+
+## The audit console
+
+The TypeScript console never touches the wire; it reads the audit log the gateway wrote. Three subcommands, all Node-stdlib-only:
+
+![Audit console: decision radar and live event terminal](docs/assets/console.svg)
+
+```sh
+node console/dist/cli.js report <audit.jsonl> [--json] [--decision D] [--tool S]
+node console/dist/cli.js tail   <audit.jsonl> [--decision D]
+node console/dist/cli.js policy <policy-file>
+```
+
+`report` on the demo log:
+
+```text
+McpBastion — Audit Report
+==========================
+
+Total messages : 10
