@@ -242,3 +242,40 @@ The default answer is "no." Concretely, a message is refused (denied or dropped)
 - it exceeds `max_bytes` (drop);
 - it is not a JSON object (drop);
 - it is a `tools/call` whose `params.name` cannot be extracted as a string (deny);
+- its tool matches a `deny_tool` (deny);
+- its tool is on no list and `default = deny` (deny);
+- a non-`tools/call` method arrives under `default = deny` (deny);
+- the rate window is full (drop).
+
+There is no path in which uncertainty resolves to "forward." If the checkpoint cannot articulate a positive reason to pass a message, it does not pass it.
+
+## Operational recipes
+
+```sh
+# Watch only what got blocked, live
+node console/dist/cli.js tail audit.jsonl --decision deny
+
+# Machine-readable rollup for a dashboard or CI gate
+node console/dist/cli.js report audit.jsonl --json
+
+# Everything a single tool did across a session
+node console/dist/cli.js report audit.jsonl --tool read_file
+
+# Lint a policy before you trust it (exits non-zero on errors)
+node console/dist/cli.js policy policies/strict.policy
+
+# Send audit to stderr (no --audit) and keep only the forwarded stream
+cat session.jsonl | McpBastion --policy p.policy 2>/dev/null > forwarded.jsonl
+```
+
+## Exit behaviour
+
+Streams:
+
+- **stdout** — permitted, redacted messages, one per line. Flushed after every write.
+- **audit sink** — one JSON event per input line; `stderr` by default, or the `--audit` file. Also flushed per write.
+- **stderr** — errors and, absent `--audit`, the audit events themselves.
+
+Exit codes (from `gateway/src/main.rs`):
+
+| Code | Meaning |
