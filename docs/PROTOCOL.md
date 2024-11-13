@@ -80,3 +80,17 @@ audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
   "tool":      "read_file",
   "id":        "3",
   "bytes_in":  110,
+  "bytes_out": 110,
+  "redacted":  ["auth_token"],
+  "balanced":  true,
+  "max_depth": 3
+}
+```
+
+| Field       | Type              | Notes |
+|-------------|-------------------|-------|
+| `ts_ms`     | number            | Milliseconds since process start (plus `--epoch-ms` base). |
+| `seq`       | number            | 1-based counter of non-empty input lines. |
+| `decision`  | string            | `forward` \| `deny` \| `drop` \| `error`. |
+| `reason`    | string            | Human-readable rule that produced the decision. |
+| `method`    | string \| null    | Extracted `method`, or null. |
