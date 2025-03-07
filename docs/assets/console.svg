@@ -15,3 +15,14 @@
       <stop offset="0" stop-color="#12ffd6" stop-opacity="0"/>
       <stop offset="1" stop-color="#12ffd6" stop-opacity="0.55"/>
     </linearGradient>
+    <filter id="cglow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="960" height="400" fill="url(#cbg)"/>
+
+  <!-- title bar -->
+  <rect x="0" y="0" width="960" height="34" fill="#06102a"/>
+  <circle cx="20" cy="17" r="5" fill="#ff2b4e"/><circle cx="38" cy="17" r="5" fill="#ffb020"/><circle cx="56" cy="17" r="5" fill="#12ffd6"/>
