@@ -100,3 +100,16 @@ audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
 | `bytes_out` | number            | Length of the forwarded message, or 0. |
 | `redacted`  | string[]          | Argument keys whose values were redacted. |
 | `balanced`  | boolean           | Whether brackets/quotes balanced across the input. |
+| `max_depth` | number            | Maximum nesting depth observed. |
+
+### Decisions
+
+| Decision  | Meaning                                                        |
+|-----------|----------------------------------------------------------------|
+| `forward` | Permitted (after any redaction); written to stdout.            |
+| `deny`    | Blocked by an allow/deny rule or fail-closed extraction.       |
+| `drop`    | Discarded by a limit (size / rate) or because it is not an object. |
+| `error`   | Reserved for internal processing errors (none emitted in 0.1). |
+
+### Summary line
+
