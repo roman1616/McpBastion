@@ -31,3 +31,13 @@ display and linting.
 | `rate_limit`      | integer         | `0`          | Max forwarded messages per window. `0` = unlimited. |
 | `rate_window_ms`  | integer         | `1000`       | Rolling window length in milliseconds. |
 | `redaction_mask`  | string          | `«redacted»` | Replacement text spliced in place of redacted values. |
+
+## Globs
+
+Globs use `*` as a wildcard that matches any run of characters (including the
+empty string). Everything else is a literal. There is no `?` or character
+class. Matching is case-sensitive and must cover the **whole** string.
+
+Examples:
+
+| Pattern       | Matches                         | Does not match     |
