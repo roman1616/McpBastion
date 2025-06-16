@@ -227,3 +227,40 @@ The security of this checkpoint rests on one modest promise: *the extractor neve
 - Track object/array nesting so a key is matched only at the depth you asked for — a nested `"method"` inside `params` never shadows the top-level one.
 - Return the raw byte span of a value, and decode a string field (including surrogate pairs) when it needs the text of `method` or `params.name`.
 
+**It will not:**
+
+- Validate that the whole line is well-formed JSON.
+- Build a document tree, or decode numbers, booleans, or `null` into typed values.
+- Normalise or de-duplicate repeated keys, or care about key ordering.
+
+The consequence is deliberate and safe: the gateway reads the *minimum* needed for a decision, shrinking the attack surface versus a full parser, and when it cannot confidently extract a needed field it **fails closed** rather than improvising. It never pretends to understand more of your traffic than it does.
+
+## Fail-closed behaviour
+
+The default answer is "no." Concretely, a message is refused (denied or dropped) rather than forwarded whenever:
+
+- it exceeds `max_bytes` (drop);
+- it is not a JSON object (drop);
+- it is a `tools/call` whose `params.name` cannot be extracted as a string (deny);
+- its tool matches a `deny_tool` (deny);
+- its tool is on no list and `default = deny` (deny);
+- a non-`tools/call` method arrives under `default = deny` (deny);
+- the rate window is full (drop).
+
+There is no path in which uncertainty resolves to "forward." If the checkpoint cannot articulate a positive reason to pass a message, it does not pass it.
+
+## Operational recipes
+
+```sh
+# Watch only what got blocked, live
+node console/dist/cli.js tail audit.jsonl --decision deny
+
+# Machine-readable rollup for a dashboard or CI gate
+node console/dist/cli.js report audit.jsonl --json
+
+# Everything a single tool did across a session
+node console/dist/cli.js report audit.jsonl --tool read_file
+
+# Lint a policy before you trust it (exits non-zero on errors)
+node console/dist/cli.js policy policies/strict.policy
+
