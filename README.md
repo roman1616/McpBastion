@@ -48,3 +48,40 @@ Every non-empty input line runs the same gauntlet, in this order. The first gate
 6. **Allow list.** Else if it matches any `allow_tool` glob → continue. Else apply `default`.
 7. **Rate.** A would-be-forwarded message arriving while the rolling window is full is **dropped**. Only forwarded messages count against the window.
 8. **Redact & forward.** Matching argument values are spliced with the mask, and the message — every other byte intact — is written to `stdout`.
+
+Whatever the outcome, one audit event is emitted describing it.
+
+## Standing up the gateway
+
+Prerequisites: a Rust toolchain (`cargo`) and Node.js ≥ 18.
+
+```sh
+make build          # cargo build --release  +  npm install && npm run build
+make demo           # runs the whole gauntlet end-to-end and prints the report
+```
+
+`make demo` is the fastest way to see the checkpoint work; it is the exact command below, wired to the shipped sample session so the whole thing is self-contained and deterministic:
+
+```sh
+cat sessions/demo-session.jsonl \
+  | gateway/target/release/McpBastion \
+      --policy policies/default.policy \
+      --audit sessions/demo-audit.jsonl \
+      --stats --epoch-ms 0 \
+  > sessions/demo-forwarded.jsonl
+```
+
+The flags, precisely:
+
+| Flag | Meaning |
+|------|---------|
+| `--policy <FILE>` | **Required.** The policy to enforce. |
+| `--audit <FILE>` | Write audit events here instead of `stderr`. |
+| `--stats` | Append a `{"summary":true,…}` line at EOF. |
+| `--epoch-ms <N>` | Pin the base timestamp for deterministic demos/tests. |
+| `--help` / `--version` | Print usage or version and exit. |
+
+### Placing it inline (the honest way)
+
+In real use the checkpoint belongs *in the pipe* between your client and your MCP server, framed as newline JSON both ways. Because the gateway is strictly a `stdin → stdout` relay, you compose it with the shell (or your client's launch config), not with a built-in "wrap this server" flag:
+
