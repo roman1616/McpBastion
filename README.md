@@ -85,3 +85,41 @@ The flags, precisely:
 
 In real use the checkpoint belongs *in the pipe* between your client and your MCP server, framed as newline JSON both ways. Because the gateway is strictly a `stdin → stdout` relay, you compose it with the shell (or your client's launch config), not with a built-in "wrap this server" flag:
 
+```sh
+your-mcp-client \
+  | McpBastion --policy policies/default.policy --audit audit.jsonl \
+  | some-mcp-server
+```
+
+This repo ships the single-direction *replay* form (`cat session | McpBastion > forwarded`) so the demo needs no live server. There is no reverse channel management, no request/response correlation, and no transport translation — don't read more into it than that.
+
+## The demo session, replayed
+
+The sample [`sessions/demo-session.jsonl`](sessions/demo-session.jsonl) is ten messages: a handshake, a `tools/list`, six real tool calls, a couple of dangerous ones, and one malformed `tools/call` with no `name`. Under [`policies/default.policy`](policies/default.policy) (deny-by-default, read-only allow-list, credential redaction) it yields **4 forwarded, 6 denied, 0 dropped**.
+
+What comes out on `stdout` is the four survivors, with credentials — and nothing else — replaced. Note how the `{brace}` and escaped `"quotes"` inside the `note` string ride through untouched: proof the extractor respects string boundaries.
+
+```json
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"search_files","arguments":{"query":"password","access_token":"«redacted»","note":"contains a {brace} and \"quotes\""}}}
+```
+
+The six that never reach the server, and why:
+
+| id | tool / method | decision | reason |
+|----|---------------|----------|--------|
+| 1 | `initialize` | deny | default deny (non `tools/call`) |
+| 2 | `tools/list` | deny | default deny (non `tools/call`) |
+| 6 | `shell.exec` | deny | `deny_tool shell.*` |
+| 7 | `fs.delete` | deny | `deny_tool fs.delete` |
+| 8 | `format_disk` | deny | default deny (not on allow-list) |
+| 10 | *(missing name)* | deny | `tools/call missing extractable params.name` |
+
+Everything the gateway wrote to the audit sink for this run is captured verbatim in [`sessions/demo-audit.jsonl`](sessions/demo-audit.jsonl), and the forwarded stream in [`sessions/demo-forwarded.jsonl`](sessions/demo-forwarded.jsonl).
+
+## Policy routing
+
+A policy is a tiny, line-oriented file (`key = value` or `key value`; `#` comments; blank lines ignored). The [`default.policy`](policies/default.policy) posture reads like a checkpoint duty roster:
+
+```text
+default = deny
+
