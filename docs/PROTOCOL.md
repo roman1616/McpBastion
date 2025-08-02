@@ -36,3 +36,17 @@ exactly enough of the grammar to be safe:
 - It tracks object/array **nesting depth** and can return the **raw byte span**
   of the value following a matched key.
 - It can **decode** a JSON string literal (including surrogate pairs) when it
+  needs the textual value of a field such as `method` or `params.name`.
+
+It deliberately does **not**:
+
+- validate that the whole message is well-formed JSON,
+- build a document tree or decode numbers/booleans,
+- normalise duplicate keys.
+
+Consequences, by design:
+
+- The gateway only inspects the fields it needs: top-level `method` and `id`,
+  and `params.name` / `params.arguments` for `tools/call`.
+- If it cannot confidently extract a needed field (e.g. a `tools/call` whose
+  `params.name` is missing or not a string), it **fails closed** and denies the
