@@ -197,3 +197,41 @@ McpBastion — Audit Report
 ==========================
 
 Total messages : 10
+Bytes in/out   : 1204 / 582
+Redaction events: 3
+Unbalanced msgs : 0
+Max depth seen  : 3
+Gateway summary : MATCHES
+
+Decisions
+---------
+  forward      4 ################........
+  deny         6 ########################
+  drop         0 ........................
+  error        0 ........................
+```
+
+- **`report`** aggregates decisions, per-tool activity, redacted-key tallies, byte totals, and top reasons. `--json` emits the machine form; `--decision`/`--tool` narrow the per-event listing.
+- **`tail`** prints one compact line per event — `#3 FORWARD read_file  allow_tool read_file`, with `[redacted: …]` appended when values were masked.
+- **`policy`** parses, summarises, and **lints** a policy: unknown directives and non-integer numbers are errors; a `deny_tool` shadowing an `allow_tool`, or a redundant allow-list under `default = allow`, are warnings.
+
+**`Gateway summary : MATCHES`** is the load-bearing line. With `--stats` the Rust gateway appends its own count of forward/deny/drop/error; the console independently recounts the log and compares. Agreement is a cheap cross-language integrity check — and `report` **exits non-zero** if they disagree.
+
+## The JSON extractor: honesty and limits
+
+The security of this checkpoint rests on one modest promise: *the extractor never mistakes the inside of a string for structure.* It keeps that promise (`gateway/src/json_scan.rs`) and makes no larger claim.
+
+**It will:**
+
+- Skip string literals correctly, honouring `\"`, `\\`, and `\uXXXX` escapes, so `{`, `}`, `,`, `:` inside a string are inert.
+- Track object/array nesting so a key is matched only at the depth you asked for — a nested `"method"` inside `params` never shadows the top-level one.
+- Return the raw byte span of a value, and decode a string field (including surrogate pairs) when it needs the text of `method` or `params.name`.
+
+**It will not:**
+
+- Validate that the whole line is well-formed JSON.
+- Build a document tree, or decode numbers, booleans, or `null` into typed values.
+- Normalise or de-duplicate repeated keys, or care about key ordering.
+
+The consequence is deliberate and safe: the gateway reads the *minimum* needed for a decision, shrinking the attack surface versus a full parser, and when it cannot confidently extract a needed field it **fails closed** rather than improvising. It never pretends to understand more of your traffic than it does.
+
