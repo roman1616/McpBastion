@@ -302,4 +302,6 @@ mod tests {
         assert_eq!(json_encode_string("a\"b"), r#""a\"b""#);
         assert_eq!(json_encode_string("l\n"), r#""l\n""#);
     }
-# review note
+}
+
+# draft note 4
