@@ -205,3 +205,152 @@ Gateway summary : MATCHES
 
 Decisions
 ---------
+  forward      4 ################........
+  deny         6 ########################
+  drop         0 ........................
+  error        0 ........................
+```
+
+- **`report`** aggregates decisions, per-tool activity, redacted-key tallies, byte totals, and top reasons. `--json` emits the machine form; `--decision`/`--tool` narrow the per-event listing.
+- **`tail`** prints one compact line per event — `#3 FORWARD read_file  allow_tool read_file`, with `[redacted: …]` appended when values were masked.
+- **`policy`** parses, summarises, and **lints** a policy: unknown directives and non-integer numbers are errors; a `deny_tool` shadowing an `allow_tool`, or a redundant allow-list under `default = allow`, are warnings.
+
+**`Gateway summary : MATCHES`** is the load-bearing line. With `--stats` the Rust gateway appends its own count of forward/deny/drop/error; the console independently recounts the log and compares. Agreement is a cheap cross-language integrity check — and `report` **exits non-zero** if they disagree.
+
+## The JSON extractor: honesty and limits
+
+The security of this checkpoint rests on one modest promise: *the extractor never mistakes the inside of a string for structure.* It keeps that promise (`gateway/src/json_scan.rs`) and makes no larger claim.
+
+**It will:**
+
+- Skip string literals correctly, honouring `\"`, `\\`, and `\uXXXX` escapes, so `{`, `}`, `,`, `:` inside a string are inert.
+- Track object/array nesting so a key is matched only at the depth you asked for — a nested `"method"` inside `params` never shadows the top-level one.
+- Return the raw byte span of a value, and decode a string field (including surrogate pairs) when it needs the text of `method` or `params.name`.
+
+**It will not:**
+
+- Validate that the whole line is well-formed JSON.
+- Build a document tree, or decode numbers, booleans, or `null` into typed values.
+- Normalise or de-duplicate repeated keys, or care about key ordering.
+
+The consequence is deliberate and safe: the gateway reads the *minimum* needed for a decision, shrinking the attack surface versus a full parser, and when it cannot confidently extract a needed field it **fails closed** rather than improvising. It never pretends to understand more of your traffic than it does.
+
+## Fail-closed behaviour
+
+The default answer is "no." Concretely, a message is refused (denied or dropped) rather than forwarded whenever:
+
+- it exceeds `max_bytes` (drop);
+- it is not a JSON object (drop);
+- it is a `tools/call` whose `params.name` cannot be extracted as a string (deny);
+- its tool matches a `deny_tool` (deny);
+- its tool is on no list and `default = deny` (deny);
+- a non-`tools/call` method arrives under `default = deny` (deny);
+- the rate window is full (drop).
+
+There is no path in which uncertainty resolves to "forward." If the checkpoint cannot articulate a positive reason to pass a message, it does not pass it.
+
+## Operational recipes
+
+```sh
+# Watch only what got blocked, live
+node console/dist/cli.js tail audit.jsonl --decision deny
+
+# Machine-readable rollup for a dashboard or CI gate
+node console/dist/cli.js report audit.jsonl --json
+
+# Everything a single tool did across a session
+node console/dist/cli.js report audit.jsonl --tool read_file
+
+# Lint a policy before you trust it (exits non-zero on errors)
+node console/dist/cli.js policy policies/strict.policy
+
+# Send audit to stderr (no --audit) and keep only the forwarded stream
+cat session.jsonl | McpBastion --policy p.policy 2>/dev/null > forwarded.jsonl
+```
+
+## Exit behaviour
+
+Streams:
+
+- **stdout** — permitted, redacted messages, one per line. Flushed after every write.
+- **audit sink** — one JSON event per input line; `stderr` by default, or the `--audit` file. Also flushed per write.
+- **stderr** — errors and, absent `--audit`, the audit events themselves.
+
+Exit codes (from `gateway/src/main.rs`):
+
+| Code | Meaning |
+|------|---------|
+| `0` | Clean EOF — the session ended normally. |
+| `1` | I/O error during the session. |
+| `2` | Usage error (bad or missing arguments). |
+| `3` | Policy could not be read or parsed. |
+
+`error` as an audit *decision* is reserved and not emitted in 0.1 — the pipeline maps every message to forward, deny, or drop.
+
+## Troubleshooting
+
+- **`report` exits non-zero with `Gateway summary : MISMATCH!`** — the gateway's `--stats` counts and the console's recount disagree. Confirm you ran the gateway *with* `--stats`, and that the audit file wasn't truncated or appended to across runs (the gateway *creates* the file fresh with `--audit`).
+- **Everything is denied, including `initialize`.** Expected under `default = deny`: non-`tools/call` methods are gated by `default`. Set `default = allow` if you want the handshake through, or scope with explicit rules.
+- **A tool call I allowed is still denied.** Check for a `deny_tool` glob that also matches it — deny wins. Also confirm the match is case-sensitive and whole-string (`read_file` ≠ `read_files`).
+- **Nothing was redacted although a secret went through.** The value's key must match a `redact_arg` glob *and* sit directly inside `params.arguments`. A secret nested deeper, or under another key, won't match — widen the pattern (e.g. `*token*`) or add the key.
+- **A large message vanished with no deny reason.** It was likely **dropped** by `max_bytes` (checked before anything else) or by the rate limiter — look for `decision: drop` in the audit line.
+- **`policy` reports lint errors and exits non-zero.** Fix unknown directives and non-integer numeric values; those are hard errors. Shadowed allows and redundant allow-lists are only warnings.
+
+## Roadmap
+
+0.1 is intentionally small and honest. Out of scope for now:
+
+- **Response-side inspection.** Today the checkpoint reasons about requests; correlating and gating responses/results is future work.
+- **Richer matching.** `?` and character-class globs, and per-tool argument schemas, are candidates beyond the current literal-plus-`*` matcher.
+- **Live transport adapters.** The `stdin/stdout` JSONL contract is fixed by design; any HTTP/SSE bridging would be a separate, clearly-scoped component — not implied here.
+- **The `error` decision.** Reserved in the schema; wiring internal processing faults to it is planned.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for what 0.1.0 actually shipped.
+
+## Repository layout
+
+```
+McpBastion/
+├── gateway/            Rust std-only gateway CLI (the enforcement point)
+│   └── src/            json_scan · policy · redact · audit · engine · main
+├── console/            TypeScript, Node-stdlib-only audit & policy viewer
+│   └── src/            audit · report · policy · render · cli (+ node:test)
+├── policies/           default · strict · permissive samples
+├── sessions/           demo session + captured forwarded/audit output
+├── docs/               POLICY.md, PROTOCOL.md, assets/ (SVGs)
+├── Makefile            build / test / lint / demo orchestration
+└── .github/workflows/  CI across both languages + integration
+```
+
+## License
+
+[MIT](LICENSE).
+
+## Milestones
+
+All shipped. This is the delivery record, oldest first.
+
+- [x] M01 - Session capture: record MCP JSON-RPC traffic to the sessions log (2020-06-14)
+- [x] M02 - Policy engine skeleton: allow/deny per tool name (2020-11-02)
+- [x] M03 - Path-based tool argument inspection (2021-03-19)
+- [x] M04 - Per-session policy switching (2021-09-27)
+- [x] M05 - Strict mode: deny everything not explicitly allowed (2022-02-18)
+- [x] M06 - Argument schema validation for known tool families (2022-07-30)
+- [x] M07 - Rate limiting per client session (2022-12-09)
+- [x] M08 - Audit events with stable IDs and severity (2023-04-21)
+- [x] M09 - Shell-command detection in tool arguments (2023-08-14)
+- [x] M10 - Egress host allowlist for network-touching tools (2023-12-01)
+- [x] M11 - Policy files: default / permissive / strict bundles (2024-03-15)
+- [x] M12 - Session replay for incident forensics (2024-06-28)
+- [x] M13 - Diff view between two sessions (2024-09-20)
+- [x] M14 - Secrets scrubbing in logged arguments (2024-12-13)
+- [x] M15 - Gateway hot reload of policy files (2025-02-07)
+- [x] M16 - Per-tool risk scoring heuristic (2025-05-23)
+- [x] M17 - Console v1: policy editor + live session view (2025-08-29)
+- [x] M18 - Export audit reports (markdown + JSON) (2025-11-14)
+- [x] M19 - Anomaly flagging: unusual argument sizes and repeat calls (2026-01-16)
+- [x] M20 - Demo sessions + forward pipeline for testing (2026-02-27)
+- [x] M21 - Wildcard tool matching with explicit-deny precedence (2026-04-17)
+- [x] M22 - Console v2: audit timeline + finding drill-down (2026-06-26)
+- [x] M23 - 1.0 hardening: fuzzed parser inputs, zero-dependency TS console (2026-08-14)
+# draft note 3
