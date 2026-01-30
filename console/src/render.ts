@@ -117,3 +117,29 @@ export function renderPolicy(policy: ParsedPolicy, issues: readonly PolicyIssue[
   lines.push(`Default decision : ${policy.defaultAllow ? "ALLOW" : "DENY"}`);
   lines.push(`Max bytes        : ${policy.maxBytes}`);
   lines.push(`Max depth        : ${policy.maxDepth}`);
+  lines.push(
+    `Rate limit       : ${policy.rateLimit === 0 ? "unlimited" : `${policy.rateLimit} / ${policy.rateWindowMs} ms`}`,
+  );
+  lines.push(`Redaction mask   : ${policy.redactionMask}`);
+  lines.push("");
+  lines.push(`Allowed tools (${policy.allowTools.length}):`);
+  for (const t of policy.allowTools) lines.push(`  + ${t}`);
+  lines.push(`Denied tools (${policy.denyTools.length}):`);
+  for (const t of policy.denyTools) lines.push(`  - ${t}`);
+  lines.push(`Redacted args (${policy.redactArgs.length}):`);
+  for (const t of policy.redactArgs) lines.push(`  ~ ${t}`);
+  lines.push("");
+
+  if (issues.length === 0) {
+    lines.push("Lint: no issues.");
+  } else {
+    lines.push(`Lint: ${issues.length} issue(s)`);
+    for (const iss of issues) {
+      const where = iss.line > 0 ? `line ${iss.line}` : "policy";
+      lines.push(`  [${iss.severity}] ${where}: ${iss.message}`);
+    }
+  }
+  return lines.join("\n");
+}
+
+# draft note 14
