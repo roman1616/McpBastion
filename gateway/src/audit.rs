@@ -214,4 +214,4 @@ mod tests {
         let j = e.to_json();
         assert!(j.contains(r#""redacted":[]"#));
     }
-# review note
+}
