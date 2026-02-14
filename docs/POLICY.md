@@ -55,3 +55,43 @@ For a `tools/call` message the gateway evaluates, in order:
 2. **Shape** — if the message is not a JSON object, it is **dropped**.
 3. **Tool name** — extracted from `params.name`. A `tools/call` without an
    extractable string name is **denied** (fail-closed).
+4. **Deny list** — if the name matches any `deny_tool`, **deny**.
+5. **Allow list** — else if it matches any `allow_tool`, continue.
+6. **Default** — else apply `default`.
+7. **Rate limit** — if it would be forwarded but the window is full, **drop**.
+8. **Redaction** — matching argument values are replaced, then the message is
+   **forwarded**.
+
+Methods other than `tools/call` (e.g. `initialize`, `tools/list`) are gated
+solely by `default`, so `default = deny` locks the gateway to an audited
+allow-list of tool calls and nothing else.
+
+## Worked example
+
+```text
+default = deny
+allow_tool = read_file
+deny_tool  = shell.*
+redact_arg = *token*
+max_bytes  = 65536
+rate_limit = 20
+rate_window_ms = 1000
+redaction_mask = "«redacted»"
+```
+
+- `read_file` → allowed.
+- `shell.exec` → denied (matches `shell.*`).
+- `write_file` → denied (default, not on allow list).
+- `read_file` with an `auth_token` argument → forwarded with the token value
+  replaced by `«redacted»`.
+- 21st forwarded message within 1 s → dropped by the rate limiter.
+
+## Linting
+
+`node console/dist/cli.js policy <file>` prints a summary and flags:
+
+- unknown directives and non-integer numeric values (errors);
+- `allow_tool` rules shadowed by a `deny_tool` (warning);
+- a redundant allow-list when `default = allow` (warning).
+
+# draft note 23
