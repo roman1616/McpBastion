@@ -80,3 +80,55 @@ audit sink (`stderr` by default, or `--audit <file>`). Serialisation is in
   "tool":      "read_file",
   "id":        "3",
   "bytes_in":  110,
+  "bytes_out": 110,
+  "redacted":  ["auth_token"],
+  "balanced":  true,
+  "max_depth": 3
+}
+```
+
+| Field       | Type              | Notes |
+|-------------|-------------------|-------|
+| `ts_ms`     | number            | Milliseconds since process start (plus `--epoch-ms` base). |
+| `seq`       | number            | 1-based counter of non-empty input lines. |
+| `decision`  | string            | `forward` \| `deny` \| `drop` \| `error`. |
+| `reason`    | string            | Human-readable rule that produced the decision. |
+| `method`    | string \| null    | Extracted `method`, or null. |
+| `tool`      | string \| null    | Extracted `params.name` for `tools/call`, else null. |
+| `id`        | string \| null    | Raw text of the top-level `id`, or null. |
+| `bytes_in`  | number            | Length of the input line in bytes. |
+| `bytes_out` | number            | Length of the forwarded message, or 0. |
+| `redacted`  | string[]          | Argument keys whose values were redacted. |
+| `balanced`  | boolean           | Whether brackets/quotes balanced across the input. |
+| `max_depth` | number            | Maximum nesting depth observed. |
+
+### Decisions
+
+| Decision  | Meaning                                                        |
+|-----------|----------------------------------------------------------------|
+| `forward` | Permitted (after any redaction); written to stdout.            |
+| `deny`    | Blocked by an allow/deny rule or fail-closed extraction.       |
+| `drop`    | Discarded by a limit (size / rate) or because it is not an object. |
+| `error`   | Reserved for internal processing errors (none emitted in 0.1). |
+
+### Summary line
+
+With `--stats`, a final object is appended to the audit sink:
+
+```json
+{"summary":true,"total":10,"forward":4,"deny":6,"drop":0,"error":0}
+```
+
+The console cross-checks this against its own recount and exits non-zero from
+`report` if they disagree — a cheap integrity check across the two languages.
+
+## Exit codes
+
+| Code | Meaning                        |
+|------|--------------------------------|
+| 0    | Clean EOF.                     |
+| 1    | I/O error during the session.  |
+| 2    | Usage error (bad arguments).   |
+| 3    | Policy could not be loaded.    |
+
+# draft note 24
