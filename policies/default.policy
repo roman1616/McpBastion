@@ -37,4 +37,4 @@ rate_window_ms = 1000      # ... per rolling 1000 ms window
 # Replacement text spliced in place of redacted values.
 redaction_mask = "«redacted»"
 
-# draft note 17
+# draft note 44
