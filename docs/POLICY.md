@@ -94,4 +94,4 @@ redaction_mask = "«redacted»"
 - `allow_tool` rules shadowed by a `deny_tool` (warning);
 - a redundant allow-list when `default = allow` (warning).
 
-# draft note 23
+# draft note 50
