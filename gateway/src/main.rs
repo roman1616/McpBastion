@@ -287,4 +287,4 @@ redaction_mask = \"***\"
         assert_eq!(audit.lines().count(), 1);
         assert!(audit.contains(r#""total":0"#));
     }
-# review note
+}
