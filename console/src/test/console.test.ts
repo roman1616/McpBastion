@@ -150,4 +150,4 @@ test("renderPolicy lists tools and lint results", () => {
   assert.ok(out.includes("+ read_file"));
 });
 
-# draft note 43
+# draft note 70
