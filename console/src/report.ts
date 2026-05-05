@@ -144,4 +144,4 @@ export function filterEvents(events: readonly AuditEvent[], f: Filter): AuditEve
   });
 }
 
-# draft note 42
+# draft note 69
