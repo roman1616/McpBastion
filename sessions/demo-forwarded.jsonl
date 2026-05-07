@@ -3,4 +3,4 @@
 {"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"search_files","arguments":{"query":"password","access_token":"«redacted»","note":"contains a {brace} and \"quotes\""}}}
 {"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"get_metadata","arguments":{"path":"/home/user/report.pdf","authorization":"«redacted»"}}}
 
-# draft note 48
+# draft note 75
