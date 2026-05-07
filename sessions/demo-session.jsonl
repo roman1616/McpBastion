@@ -9,4 +9,4 @@
 {"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"get_metadata","arguments":{"path":"/home/user/report.pdf","authorization":"Bearer sk-secret"}}}
 {"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"arguments":{"path":"/x"}}}
 
-# draft note 49
+# draft note 76
