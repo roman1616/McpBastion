@@ -21,4 +21,4 @@ rate_limit     = 5
 rate_window_ms = 1000
 redaction_mask = "«REDACTED»"
 
-# draft note 46
+# draft note 73
