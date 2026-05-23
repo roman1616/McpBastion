@@ -353,4 +353,4 @@ All shipped. This is the delivery record, oldest first.
 - [x] M21 - Wildcard tool matching with explicit-deny precedence (2026-04-17)
 - [x] M22 - Console v2: audit timeline + finding drill-down (2026-06-26)
 - [x] M23 - 1.0 hardening: fuzzed parser inputs, zero-dependency TS console (2026-08-14)
-# draft note 57
+# draft note 84
