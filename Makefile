@@ -60,4 +60,4 @@ clean: ## Remove build artifacts
 	cd $(GATEWAY) && cargo clean
 	rm -rf $(CONSOLE)/dist $(CONSOLE)/node_modules
 
-# draft note 56
+# draft note 83
