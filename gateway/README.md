@@ -45,4 +45,4 @@ sink.
 Every module carries its own unit tests; `tests/integration.rs` exercises the
 full pipeline over realistic messages.
 
-# draft note 59
+# draft note 5
