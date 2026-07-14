@@ -141,5 +141,3 @@ export function renderPolicy(policy: ParsedPolicy, issues: readonly PolicyIssue[
   }
   return lines.join("\n");
 }
-
-# draft note 68
