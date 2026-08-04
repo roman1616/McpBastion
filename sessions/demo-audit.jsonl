@@ -10,4 +10,4 @@
 {"ts_ms":0,"seq":10,"decision":"deny","reason":"tools/call missing extractable params.name","method":"tools/call","tool":null,"id":"10","bytes_in":84,"bytes_out":0,"redacted":[],"balanced":true,"max_depth":3}
 {"summary":true,"total":10,"forward":4,"deny":6,"drop":0,"error":0}
 
-# draft note 74
+# draft note 20
