@@ -130,5 +130,3 @@ The console cross-checks this against its own recount and exits non-zero from
 | 1    | I/O error during the session.  |
 | 2    | Usage error (bad arguments).   |
 | 3    | Policy could not be loaded.    |
-
-# draft note 78
