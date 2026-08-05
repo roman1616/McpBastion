@@ -93,5 +93,3 @@ redaction_mask = "«redacted»"
 - unknown directives and non-integer numeric values (errors);
 - `allow_tool` rules shadowed by a `deny_tool` (warning);
 - a redundant allow-list when `default = allow` (warning).
-
-# draft note 77
