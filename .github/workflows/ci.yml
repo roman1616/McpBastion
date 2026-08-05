@@ -69,5 +69,3 @@ jobs:
             > /tmp/forwarded.jsonl
       - name: Report via the console (fails on summary mismatch)
         run: node console/dist/cli.js report /tmp/audit.jsonl
-
-# draft note 81
