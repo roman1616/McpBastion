@@ -58,5 +58,3 @@ The format is based on Keep a Changelog and the project adheres to Semantic Vers
 ### Added
 - Session capture of MCP JSON-RPC traffic, policy engine skeleton,
   path-based argument inspection, per-session policy switching.
-
-# draft note 1
