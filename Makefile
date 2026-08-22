@@ -59,5 +59,3 @@ demo: gateway-build console-build ## Run the end-to-end demo
 clean: ## Remove build artifacts
 	cd $(GATEWAY) && cargo clean
 	rm -rf $(CONSOLE)/dist $(CONSOLE)/node_modules
-
-# draft note 29
